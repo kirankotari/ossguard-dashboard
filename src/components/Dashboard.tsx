@@ -12,10 +12,10 @@ import SettingsPanel from './SettingsPanel';
 import { cn } from '../lib/cn';
 
 const TABS: { id: RepoTab; label: string; icon: React.ReactNode; desc: string }[] = [
-  { id: 'all', label: 'All', icon: <Layers className="w-3.5 h-3.5" />, desc: 'All repositories' },
   { id: 'public', label: 'Public', icon: <Globe className="w-3.5 h-3.5" />, desc: 'Scorecard available' },
   { id: 'forked', label: 'Forked', icon: <GitFork className="w-3.5 h-3.5" />, desc: 'Upstream forks' },
   { id: 'private', label: 'Private', icon: <Lock className="w-3.5 h-3.5" />, desc: 'No scorecard' },
+  { id: 'all', label: 'All', icon: <Layers className="w-3.5 h-3.5" />, desc: 'All repositories' },
 ];
 
 export default function Dashboard() {

@@ -72,7 +72,7 @@ export const useDashboardStore = create<DashboardState>()(
   persist(
     (set, get) => ({
       selectedOrg: null,
-      repoTab: 'all',
+      repoTab: 'public',
       orgs: [],
       repos: [],
       scores: {},
