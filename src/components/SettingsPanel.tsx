@@ -157,46 +157,28 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
           />
         </div>
 
-        <div className="space-y-1 max-h-[400px] overflow-y-auto">
+        <div className="flex flex-wrap gap-2 max-h-[400px] overflow-y-auto">
           {filteredRepos.map((repo) => {
             const isExcluded = excludedRepos.includes(repo.full_name);
             return (
-              <div
+              <button
                 key={repo.id}
                 className={cn(
-                  'flex items-center justify-between px-3 py-2.5 rounded-lg border transition-colors cursor-pointer',
+                  'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all',
                   isExcluded
-                    ? 'bg-slate-900/30 border-slate-800 opacity-60'
-                    : 'bg-slate-800/50 border-slate-700/50 hover:border-slate-600'
+                    ? 'bg-slate-900/40 border-slate-800 text-slate-600 opacity-60 line-through'
+                    : 'bg-slate-800/60 border-slate-700/50 text-slate-200 hover:border-blue-500/40 hover:bg-blue-500/5'
                 )}
                 onClick={() => toggleExcluded(repo.full_name)}
+                title={`${repo.full_name} · ${repo.visibility}${repo.language ? ` · ${repo.language}` : ''} — click to ${isExcluded ? 'include' : 'exclude'}`}
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={cn(
-                    'w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold',
-                    isExcluded ? 'bg-slate-800 text-slate-600' : 'bg-blue-500/10 text-blue-400'
-                  )}>
-                    {isExcluded ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </div>
-                  <div className="min-w-0">
-                    <p className={cn('text-sm font-medium truncate', isExcluded ? 'text-slate-500' : 'text-white')}>
-                      {repo.name}
-                    </p>
-                    <p className="text-[10px] text-slate-600 truncate">{repo.full_name}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={cn(
-                    'text-[10px] px-2 py-0.5 rounded-full',
-                    repo.visibility === 'public' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-700 text-slate-400'
-                  )}>
-                    {repo.visibility}
-                  </span>
-                  {repo.language && (
-                    <span className="text-[10px] text-slate-600">{repo.language}</span>
-                  )}
-                </div>
-              </div>
+                {isExcluded ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3 text-blue-400" />}
+                {repo.name}
+                <span className={cn(
+                  'w-1.5 h-1.5 rounded-full',
+                  repo.visibility === 'public' ? 'bg-emerald-400' : repo.visibility === 'private' ? 'bg-amber-400' : 'bg-slate-500'
+                )} />
+              </button>
             );
           })}
         </div>
