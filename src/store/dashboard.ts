@@ -7,7 +7,7 @@ export interface Org {
   description: string | null;
 }
 
-export type RepoTab = 'public' | 'forked' | 'private';
+export type RepoTab = 'all' | 'public' | 'forked' | 'private';
 
 export interface Repo {
   id: number;
@@ -72,7 +72,7 @@ export const useDashboardStore = create<DashboardState>()(
   persist(
     (set, get) => ({
       selectedOrg: null,
-      repoTab: 'public',
+      repoTab: 'all',
       orgs: [],
       repos: [],
       scores: {},

@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import {
   Search, LayoutGrid, List, RefreshCw,
-  Globe, GitFork, Lock, X, Settings,
+  Globe, GitFork, Lock, X, Settings, Layers,
 } from 'lucide-react';
 import { useDashboardStore, type RepoTab } from '../store/dashboard';
 import { useAuthStore } from '../store/auth';
@@ -12,6 +12,7 @@ import SettingsPanel from './SettingsPanel';
 import { cn } from '../lib/cn';
 
 const TABS: { id: RepoTab; label: string; icon: React.ReactNode; desc: string }[] = [
+  { id: 'all', label: 'All', icon: <Layers className="w-3.5 h-3.5" />, desc: 'All repositories' },
   { id: 'public', label: 'Public', icon: <Globe className="w-3.5 h-3.5" />, desc: 'Scorecard available' },
   { id: 'forked', label: 'Forked', icon: <GitFork className="w-3.5 h-3.5" />, desc: 'Upstream forks' },
   { id: 'private', label: 'Private', icon: <Lock className="w-3.5 h-3.5" />, desc: 'No scorecard' },
@@ -75,6 +76,7 @@ export default function Dashboard() {
 
   // Tab counts
   const tabCounts = useMemo(() => ({
+    all: repos.length,
     public: repos.filter((r) => r.visibility === 'public' && !r.fork).length,
     forked: repos.filter((r) => r.fork).length,
     private: repos.filter((r) => r.visibility === 'private').length,
