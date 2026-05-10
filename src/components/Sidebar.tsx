@@ -5,7 +5,7 @@ import { useDashboardStore } from '../store/dashboard';
 import { fetchOrgs, initOctokit } from '../lib/github';
 import { cn } from '../lib/cn';
 
-export default function Sidebar() {
+export default function TopBar() {
   const { user, token, logout } = useAuthStore();
   const { orgs, selectedOrg, setOrgs, setSelectedOrg } = useDashboardStore();
 
@@ -15,93 +15,67 @@ export default function Sidebar() {
     fetchOrgs().then(setOrgs).catch(console.error);
   }, [token]);
 
+  const navItems = [
+    { id: null, label: 'My Repos', icon: <User className="w-3.5 h-3.5" /> },
+    { id: '__favorites__', label: 'Favorites', icon: <Star className="w-3.5 h-3.5" /> },
+    ...orgs.map((org) => ({
+      id: org.login,
+      label: org.login,
+      icon: org.avatar_url
+        ? <img src={org.avatar_url} className="w-4 h-4 rounded" alt="" />
+        : <Building2 className="w-3.5 h-3.5" />,
+    })),
+  ];
+
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-screen sticky top-0">
-      {/* Header */}
-      <div className="p-4 border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-            <Shield className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-white text-lg">OSSGuard</span>
+    <nav className="bg-slate-900 border-b border-slate-800 px-4 flex items-center h-13 sticky top-0 z-50">
+      {/* Logo */}
+      <div className="flex items-center gap-2 mr-6 shrink-0">
+        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+          <Shield className="w-3.5 h-3.5 text-white" />
         </div>
+        <span className="font-bold text-white text-sm hidden sm:block">OSSGuard</span>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-        <button
-          onClick={() => setSelectedOrg(null)}
-          className={cn(
-            'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
-            selectedOrg === null
-              ? 'bg-blue-600/20 text-blue-400'
-              : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
-          )}
-        >
-          <User className="w-4 h-4" />
-          My Repositories
-        </button>
-
-        <button
-          onClick={() => setSelectedOrg('__favorites__')}
-          className={cn(
-            'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
-            selectedOrg === '__favorites__'
-              ? 'bg-yellow-600/20 text-yellow-400'
-              : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
-          )}
-        >
-          <Star className="w-4 h-4" />
-          Favorites
-        </button>
-
-        {orgs.length > 0 && (
-          <div className="pt-3">
-            <p className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-              Organizations
-            </p>
-            {orgs.map((org) => (
-              <button
-                key={org.login}
-                onClick={() => setSelectedOrg(org.login)}
-                className={cn(
-                  'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
-                  selectedOrg === org.login
-                    ? 'bg-blue-600/20 text-blue-400'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
-                )}
-              >
-                {org.avatar_url ? (
-                  <img src={org.avatar_url} className="w-5 h-5 rounded" alt="" />
-                ) : (
-                  <Building2 className="w-4 h-4" />
-                )}
-                <span className="truncate">{org.login}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </nav>
+      {/* Nav pills — scrollable on small screens */}
+      <div className="flex items-center gap-1 flex-1 overflow-x-auto no-scrollbar">
+        {navItems.map((item) => (
+          <button
+            key={item.id ?? '__me__'}
+            onClick={() => setSelectedOrg(item.id)}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all shrink-0',
+              selectedOrg === item.id
+                ? item.id === '__favorites__'
+                  ? 'bg-yellow-600/20 text-yellow-400'
+                  : 'bg-blue-600/20 text-blue-400'
+                : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+            )}
+          >
+            {item.icon}
+            {item.label}
+          </button>
+        ))}
+      </div>
 
       {/* User */}
-      <div className="p-3 border-t border-slate-800">
-        <div className="flex items-center gap-3 px-3 py-2">
+      <div className="flex items-center gap-3 ml-4 shrink-0">
+        <div className="flex items-center gap-2">
           {user?.avatar_url && (
-            <img src={user.avatar_url} className="w-8 h-8 rounded-full" alt="" />
+            <img src={user.avatar_url} className="w-6 h-6 rounded-full" alt="" />
           )}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">{user?.name || user?.login}</p>
-            <p className="text-xs text-slate-500 truncate">@{user?.login}</p>
-          </div>
-          <button
-            onClick={logout}
-            className="p-1.5 text-slate-500 hover:text-red-400 rounded-lg hover:bg-slate-800 transition-colors"
-            title="Sign out"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
+          <span className="text-xs font-medium text-slate-300 hidden md:block">
+            {user?.name || user?.login}
+          </span>
         </div>
+        <button
+          onClick={logout}
+          className="p-1.5 text-slate-500 hover:text-red-400 rounded-lg hover:bg-slate-800 transition-colors"
+          title="Sign out"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+        </button>
       </div>
-    </aside>
+    </nav>
   );
 }
