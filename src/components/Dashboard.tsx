@@ -326,7 +326,7 @@ export default function Dashboard() {
         <div
           className={cn(
             view === 'grid'
-              ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3'
+              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3'
               : 'space-y-2'
           )}
         >
