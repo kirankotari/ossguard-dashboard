@@ -79,6 +79,7 @@ function mapRepo(r: any): Repo {
     open_issues_count: r.open_issues_count,
     pushed_at: r.pushed_at,
     archived: r.archived ?? false,
+    fork: r.fork ?? false,
     visibility: r.visibility ?? 'public',
     default_branch: r.default_branch ?? 'main',
   };

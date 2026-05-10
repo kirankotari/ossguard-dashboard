@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { Shield, ArrowRight, AlertCircle } from 'lucide-react';
+import {
+  Shield, ArrowRight, AlertCircle, Eye, Building2, Star,
+  BarChart3, Lock, Activity, Layers, Filter, Settings,
+} from 'lucide-react';
+import { useAuthStore } from '../store/auth';
+import { fetchUser, initOctokit } from '../lib/github';
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -8,8 +13,39 @@ function GithubIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-import { useAuthStore } from '../store/auth';
-import { fetchUser, initOctokit } from '../lib/github';
+
+const features = [
+  {
+    icon: Eye,
+    title: 'Bird\'s Eye View',
+    desc: 'See OpenSSF Scorecard status for every repo in your orgs at a glance — color-coded heatmap, sorted by urgency.',
+  },
+  {
+    icon: Building2,
+    title: 'Multi-Org Support',
+    desc: 'Switch between personal repos and any GitHub organization you belong to. Shared org configs via .ossguard.yml.',
+  },
+  {
+    icon: Filter,
+    title: 'Smart Filtering',
+    desc: 'Tabs for public, forked, and private repos. Search, sort by score or activity, and filter by language.',
+  },
+  {
+    icon: Star,
+    title: 'Favorites & Watchlist',
+    desc: 'Pin repos you care about most. Include or exclude repos from analysis. Config syncs across devices via Gist.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Scorecard Deep Dive',
+    desc: 'Drill into 18+ individual OpenSSF checks per repo — see exactly what needs fixing and why.',
+  },
+  {
+    icon: Settings,
+    title: 'Zero Infrastructure',
+    desc: '100% client-side. No backend, no database. Your GitHub token never leaves your browser.',
+  },
+];
 
 export default function LoginPage() {
   const [token, setToken] = useState('');
@@ -41,54 +77,128 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 mb-4">
-            <Shield className="w-8 h-8 text-white" />
+    <div className="min-h-screen flex bg-slate-950">
+      {/* ─── Left panel: features + branding ─── */}
+      <div className="hidden md:flex flex-1 flex-col justify-center py-8 px-10 lg:px-14 bg-blue-500/[0.03] border-r border-slate-800 overflow-y-auto">
+        <div className="w-full max-w-lg">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+              <Shield className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-white">OSSGuard Dashboard</span>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">OSSGuard Dashboard</h1>
-          <p className="text-slate-400">
-            Bird's eye view of OpenSSF security posture across your repositories
+
+          <p className="text-sm text-slate-400 leading-relaxed mb-6">
+            A <strong className="text-slate-200">zero-cost, client-side</strong> dashboard for tracking
+            {' '}<strong className="text-slate-200">OpenSSF Scorecard</strong> security posture across
+            all your GitHub repositories and organizations.
+          </p>
+
+          {/* Architecture diagram */}
+          <div className="rounded-xl bg-slate-900/60 border border-slate-800 p-4 mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">How It Works</span>
+            </div>
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="rounded-lg bg-slate-800/80 border border-slate-700 p-3">
+                <GithubIcon className="w-5 h-5 text-slate-400 mx-auto mb-1.5" />
+                <p className="text-[10px] font-medium text-slate-300">Your GitHub Token</p>
+                <p className="text-[9px] text-slate-500">repos, orgs, roles</p>
+              </div>
+              <div className="rounded-lg bg-slate-800/80 border border-slate-700 p-3">
+                <Layers className="w-5 h-5 text-blue-400 mx-auto mb-1.5" />
+                <p className="text-[10px] font-medium text-slate-300">Client-Side App</p>
+                <p className="text-[9px] text-slate-500">no server needed</p>
+              </div>
+              <div className="rounded-lg bg-slate-800/80 border border-slate-700 p-3">
+                <Shield className="w-5 h-5 text-cyan-400 mx-auto mb-1.5" />
+                <p className="text-[10px] font-medium text-slate-300">Scorecard API</p>
+                <p className="text-[9px] text-slate-500">free, public</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-1 mt-2">
+              <span className="text-[9px] text-slate-600">5,000 req/hr per user</span>
+              <span className="text-[9px] text-slate-700">|</span>
+              <span className="text-[9px] text-slate-600">GitHub Pages hosted</span>
+              <span className="text-[9px] text-slate-700">|</span>
+              <span className="text-[9px] text-slate-600">Config via Gist</span>
+            </div>
+          </div>
+
+          {/* Feature list */}
+          <div className="space-y-3.5">
+            {features.map((f) => (
+              <div key={f.title} className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg grid place-items-center shrink-0 bg-blue-500/10 text-blue-400">
+                  <f.icon className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-[12px] font-semibold text-slate-200 mb-0.5">{f.title}</p>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">{f.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-[10px] text-slate-600 mt-6 leading-relaxed">
+            Part of the <a href="https://github.com/kirankotari/ossguard" className="text-blue-500 hover:text-blue-400">OSSGuard</a> project.
+            Powered by <a href="https://openssf.org" className="text-blue-500 hover:text-blue-400">OpenSSF</a> Scorecard API.
           </p>
         </div>
+      </div>
 
-        <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-6 shadow-2xl">
-          <div className="flex items-center gap-2 mb-4">
-            <GithubIcon className="w-5 h-5 text-slate-400" />
-            <h2 className="text-lg font-semibold text-white">Sign in with GitHub</h2>
+      {/* ─── Right panel: sign in ─── */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 md:max-w-[480px] md:min-w-[400px]">
+        <div className="flex flex-col items-center gap-5 max-w-[380px] w-full">
+          {/* Logo — mobile only */}
+          <div className="flex items-center gap-3 md:hidden mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+              <Shield className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-2xl font-bold tracking-tight text-white">OSSGuard</span>
           </div>
 
-          <p className="text-sm text-slate-400 mb-4">
-            Enter a{' '}
-            <a
-              href="https://github.com/settings/tokens/new?scopes=repo,read:org&description=OSSGuard+Dashboard"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-400 hover:text-blue-300 underline"
-            >
-              Personal Access Token
-            </a>{' '}
-            with <code className="text-xs bg-slate-700 px-1.5 py-0.5 rounded text-slate-300">repo</code>{' '}
-            and <code className="text-xs bg-slate-700 px-1.5 py-0.5 rounded text-slate-300">read:org</code> scopes.
-          </p>
+          <div className="text-center">
+            <h1 className="text-[22px] font-bold text-white mb-1">Welcome to OSSGuard</h1>
+            <p className="text-sm text-slate-400">
+              Connect your GitHub account to get started
+            </p>
+          </div>
 
-          <div className="space-y-3">
-            <input
-              type="password"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-              placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-              className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-            />
+          {error && (
+            <div className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
-            {error && (
-              <div className="flex items-center gap-2 text-red-400 text-sm">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                {error}
-              </div>
-            )}
+          <div className="w-full space-y-3">
+            <div>
+              <label className="text-xs font-medium text-slate-400 mb-1.5 block">GitHub Personal Access Token</label>
+              <input
+                type="password"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+              />
+              <p className="text-[11px] text-slate-600 mt-1.5">
+                <a
+                  href="https://github.com/settings/tokens/new?scopes=repo,read:org,gist&description=OSSGuard+Dashboard"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:text-blue-400"
+                >
+                  Create a token
+                </a>
+                {' '}with{' '}
+                <code className="text-[10px] bg-slate-800 px-1 py-0.5 rounded text-slate-400">repo</code>,{' '}
+                <code className="text-[10px] bg-slate-800 px-1 py-0.5 rounded text-slate-400">read:org</code>,{' '}
+                <code className="text-[10px] bg-slate-800 px-1 py-0.5 rounded text-slate-400">gist</code> scopes
+              </p>
+            </div>
 
             <button
               onClick={handleLogin}
@@ -99,18 +209,41 @@ export default function LoginPage() {
                 <span className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
               ) : (
                 <>
-                  Connect <ArrowRight className="w-4 h-4" />
+                  <GithubIcon className="w-5 h-5" />
+                  Connect GitHub
+                  <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </div>
 
-          <div className="mt-4 p-3 bg-slate-900/50 rounded-xl border border-slate-700">
-            <p className="text-xs text-slate-500">
-              Your token is stored locally in your browser and never sent to any server.
-              All API calls go directly from your browser to GitHub and Scorecard APIs.
+          {/* Trust badges */}
+          <div className="flex items-center gap-3 mt-2">
+            <div className="flex items-center gap-1 text-[10px] text-slate-600">
+              <Lock className="w-3 h-3" /> Token stays local
+            </div>
+            <div className="flex items-center gap-1 text-[10px] text-slate-600">
+              <Shield className="w-3 h-3" /> No server
+            </div>
+            <div className="flex items-center gap-1 text-[10px] text-slate-600">
+              <Activity className="w-3 h-3" /> Your API quota
+            </div>
+          </div>
+
+          {/* EU CRA callout */}
+          <div className="w-full mt-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/20 px-4 py-3">
+            <p className="text-[11px] font-semibold text-amber-400 mb-1">EU CRA Compliance</p>
+            <p className="text-[10px] text-slate-400 leading-relaxed">
+              The EU Cyber Resilience Act requires open-source projects to meet security standards.
+              OSSGuard Dashboard helps you track OpenSSF compliance across all your repositories
+              so you can prioritize remediation efforts.
             </p>
           </div>
+
+          <p className="text-[10px] text-slate-700 text-center leading-relaxed mt-2">
+            Open source under Apache-2.0.
+            Your token is never sent to any third-party server.
+          </p>
         </div>
       </div>
     </div>
